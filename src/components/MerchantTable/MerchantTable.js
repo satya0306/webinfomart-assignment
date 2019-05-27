@@ -5,14 +5,15 @@ const MerchantTable = (props) => {
     var onMerchantTableUpdate = props.onMerchantTableUpdate;
     var rowDel = props.onRowDel;
     var filterText = props.filterText;
-    var merchant = props.merchants.map(function(merchant) {
+    var merchant = props.merchants.map(merchant => {
         if (merchant.name.indexOf(filterText) === -1 ) {
           return null;
         }
         return (<MerchantRow 
                     onMerchantTableUpdate={onMerchantTableUpdate} 
                     merchant={merchant} 
-                    onDelEvent={rowDel} key={merchant.id}/>)
+                    onDelEvent={rowDel} 
+                    key={merchant.id}/>)
         
     });
     return (

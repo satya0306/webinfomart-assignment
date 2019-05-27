@@ -1,11 +1,17 @@
 import React, { Component } from 'react';
+import { connect } from 'react-redux';
 import SearchMerchant from '../../components/SearchMerchant/SearchMerchant';
 import MerchantTable from '../../components/MerchantTable/MerchantTable';
+import Modal from '../../components/Modal/Modal';
+import ModalClose from '../../components/Modal/ModalClose/ModalClose';
+import * as actionTypes from '../../store/actions';
 
 class Merchant extends Component {
     constructor(props){
         super(props);
         this.state ={
+            loading:false,
+            purchasing:false,
             filterText: "",
             merchants:[
                 {
@@ -42,7 +48,7 @@ class Merchant extends Component {
         this.setState(this.state.merchants);
     };
 
-    handleAddEvent = (evt) => {
+    handleAddEvent = () => {
         var id = (+ new Date() + Math.floor(Math.random() * 999999)).toString(36);
         var merchants = {
           id: id,
@@ -51,8 +57,10 @@ class Merchant extends Component {
           price: 0,
           quantity: 0
         }
+
         this.state.merchants.push(merchants);
         this.setState(this.state.merchants);
+        this.setState({loading:true});
     
       }
 
@@ -78,10 +86,28 @@ class Merchant extends Component {
         this.setState({merchants:newMerchants});
     };
 
+    purchaseHandler =() =>{
+        this.setState({loading:false})
+    }
+
+    purchaseCancelHandler =() =>{
+        this.setState({loading:false})
+    }
+
     render() {
-        console.log(this.state.merchants)
+        let modal=null;
+        if(this.state.loading){
+            modal = <Modal purchaseCancelled={this.purchaseCancelHandler}
+                           purchaseContinued={this.purchaseHandler}
+                           onRowAdd={this.handleAddEvent}
+                           filterText={this.state.filterText}
+                           merchants={this.state.merchants}/>;
+        }
         return (
             <div>
+                <ModalClose show={this.state.loading} modalClosed={this.purchaseCancelHandler} >
+                    {modal}
+                </ModalClose>
                 <SearchMerchant 
                     filterText={this.state.filterText} 
                     onUserInput={this.handleUserInput}/>
@@ -96,4 +122,17 @@ class Merchant extends Component {
     }
 }
 
-export default Merchant;
+const mapStateToProps = state =>{
+    return{
+        mercnt :state.merchants
+    }
+}
+
+const mapDispatchToProps = dispatch =>{
+    return{
+        onMerchantTableAdded: () => dispatch({type: actionTypes.ADD_TABLE}),
+        onMerchantTableRemoved: () => dispatch({type: actionTypes.REMOVE_TABLE})
+    }
+}
+
+export default connect(mapStateToProps, mapDispatchToProps)(Merchant);
